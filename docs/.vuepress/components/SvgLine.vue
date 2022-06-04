@@ -4,7 +4,7 @@
     :y1="start.y"
     :x2="end.x"
     :y2="end.y"
-    style="stroke: rgb(255, 0, 0); strokewidth: 2"
+    style="stroke: rgb(0, 255, 0); strokewidth: 2"
   />
 </template>
 

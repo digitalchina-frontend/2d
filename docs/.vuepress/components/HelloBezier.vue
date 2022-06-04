@@ -9,7 +9,8 @@
     <svg-circle
       v-for="circle in circles"
       :key="circle.id"
-      :point="circle.point"
+      :x="circle.x"
+      :y="circle.y"
     ></svg-circle>
   </svg>
 </template>
@@ -19,30 +20,65 @@ import SvgLine from "./SvgLine.vue";
 import SvgCircle from "./SvgCircle.vue";
 
 function midpoint(start, end) {
-  const { x: x1, y: y1 } = start.point;
-  const { x: x2, y: y2 } = end.point;
+  const { x: x1, y: y1 } = start;
+  const { x: x2, y: y2 } = end;
   return {
-    id: 3,
-    point: { x: (x1 + x2) / 2, y: (y1 + y2) / 2 },
+    x: (x1 + x2) / 2,
+    y: (y1 + y2) / 2,
   };
 }
 
-function verticalPoint(start, end, d) {
-  const A = start.point;
-  const B = end.point;
+function verticalPoint(A, B, d) {
   return {
-    id: 4,
-    point: {
-      x:
-        B.x +
-        (d * (A.y - B.y)) /
-          Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2)),
-      y:
-        B.y -
-        (d * (A.x - B.x)) /
-          Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2)),
-    },
+    x:
+      B.x +
+      (d * (A.y - B.y)) /
+        Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2)),
+    y:
+      B.y -
+      (d * (A.x - B.x)) /
+        Math.sqrt(Math.pow(A.x - B.x, 2) + Math.pow(A.y - B.y, 2)),
   };
+}
+
+function createBezierPoints(anchorpoints, pointsAmount) {
+  var points = [];
+  for (var i = 0; i < pointsAmount; i++) {
+    var point = multiPointBezier(anchorpoints, i / pointsAmount);
+    points.push(point);
+  }
+  return points;
+}
+
+function multiPointBezier(points, t) {
+  var len = points.length;
+  var x = 0,
+    y = 0;
+  var binomial = function (start, end) {
+    var cs = 1,
+      bcs = 1;
+    while (end > 0) {
+      cs *= start;
+      bcs *= end;
+      start--;
+      end--;
+    }
+    return cs / bcs;
+  };
+  for (var i = 0; i < len; i++) {
+    var point = points[i];
+    x +=
+      point.x *
+      Math.pow(1 - t, len - 1 - i) *
+      Math.pow(t, i) *
+      binomial(len - 1, i);
+    y +=
+      point.y *
+      Math.pow(1 - t, len - 1 - i) *
+      Math.pow(t, i) *
+      binomial(len - 1, i);
+  }
+  return { x: x, y: y };
 }
 
 export default {
@@ -54,7 +90,6 @@ export default {
     return {
       lines: [
         {
-          id: 1,
           start: {
             x: 100,
             y: 100,
@@ -67,12 +102,12 @@ export default {
       ],
       circles: [
         {
-          id: 1,
-          point: { x: 100, y: 100 },
+          x: 100,
+          y: 100,
         },
         {
-          id: 2,
-          point: { x: 300, y: 300 },
+          x: 300,
+          y: 300,
         },
       ],
     };
@@ -80,8 +115,15 @@ export default {
   created() {
     const [start, end] = this.circles;
     const mid = midpoint(start, end);
+    const vertical = verticalPoint(end, mid, 100);
+    const anchorPoints = [start, vertical, end];
+    const pointsAmount = 20;
+    const curve = createBezierPoints(anchorPoints, pointsAmount);
     this.circles.push(mid);
-    this.circles.push(verticalPoint(end, mid, 100));
+    this.circles.push(vertical);
+    this.circles.push(...curve);
+
+    this.lines.push({ start: mid, end: vertical });
   },
 };
 </script>
@@ -91,5 +133,6 @@ export default {
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  margin-top: 20px;
 }
 </style>
