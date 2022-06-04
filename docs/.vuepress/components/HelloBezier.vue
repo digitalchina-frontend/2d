@@ -88,6 +88,8 @@ export default {
 
 <style>
 .bg {
-  background-color: lightgray;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 </style>
