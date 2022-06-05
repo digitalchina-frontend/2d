@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="canvas" width="512" height="512"></canvas>
+  <canvas ref="canvas" width="512" height="512" @click="draw"></canvas>
 </template>
 
 <script>
@@ -31,6 +31,7 @@ export default {
         p1 = this.genPoint(),
         p2 = this.genPoint();
 
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.context.beginPath();
       this.context.moveTo(p0.x, p0.y);
       this.context.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
