@@ -1,9 +1,30 @@
 <template>
-  <canvas width="512" height="512"></canvas>
+  <canvas ref="canvas" width="512" height="512"></canvas>
 </template>
 
 <script>
-export default {};
+export default {
+  name: "Hello",
+  data() {
+    return {
+      context: null,
+      canvas: null,
+    };
+  },
+  mounted() {
+    this.canvas = this.$refs.canvas;
+    this.context = this.canvas.getContext("2d");
+    this.drawRect();
+  },
+  methods: {
+    drawRect() {
+      this.context.fillStyle = "red";
+      this.context.beginPath();
+      this.context.rect(0, 0, 215, 215);
+      this.context.fill();
+    },
+  },
+};
 </script>
 
 <style>
